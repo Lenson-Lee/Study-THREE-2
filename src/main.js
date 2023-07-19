@@ -1,7 +1,9 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { FontLoader } from "three/addons/loaders/FontLoader.js";
-import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
+import {
+  CSS2DRenderer,
+  CSS2DObject,
+} from "three/addons/renderers/CSS2DRenderer.js";
 
 import * as CANNON from "cannon-es";
 import { Player } from "./components/Player";
@@ -14,6 +16,7 @@ import { Spot, Pointer, Text } from "./components/SpotMesh";
 import { kirby_random, kirby_run } from "./Kirby";
 import gsap from "gsap";
 
+//
 // Texture
 const textureLoader = new THREE.TextureLoader();
 const floorTexture = textureLoader.load("/images/grid.png");
@@ -28,11 +31,19 @@ const renderer = new THREE.WebGLRenderer({
   canvas,
   antialias: true,
 });
-
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio > 1 ? 2 : 1);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+/** CSS2DRenderer */
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(window.innerWidth, window.innerHeight); //이거 중복아닌가?
+
+labelRenderer.domElement.style.position = "absolute";
+labelRenderer.domElement.style.top = "0px";
+labelRenderer.domElement.style.pointerEvents = "none";
+document.body.appendChild(labelRenderer.domElement);
 
 // Scene
 const scene = new THREE.Scene();
@@ -84,12 +95,6 @@ scene.add(directionalLight);
 
 // Mesh
 const meshes = [];
-
-/* CanvasTexture - Text */
-const textCanvas = document.createElement("canvas");
-const textContext = textCanvas.getContext("2d"); //default
-textCanvas.width = 500; //pixel
-textCanvas.height = 500; //pixel
 
 /* 바닥 격자무늬 */
 const floorMesh = new THREE.Mesh(
@@ -184,7 +189,7 @@ cannonWorld.addBody(floorBody);
 //__________________________________________________________________________
 /* piano 스팟에 가면 노래 재생 */
 // let piano_play = false; // true면 이미 재생중
-// function piano_sound(state) {
+// function piano_sound(state) {dd
 //   if (piano_play) {
 //     return;
 //   } else {
@@ -197,6 +202,17 @@ const player = new Player({
   gltfLoader,
   modelSrc: "/models/ilbuni.glb",
 });
+
+//Player Tag ___________________________________________________
+const playerDiv = document.createElement("div");
+playerDiv.className = "label";
+playerDiv.innerText = "Player";
+
+const playerLabel = new CSS2DObject(playerDiv);
+playerLabel.position.set(0, -2, 0);
+playerLabel.layers.set(0);
+
+//_________________________________________________
 const kirby = new Kirby({
   scene,
   meshes,
@@ -204,7 +220,7 @@ const kirby = new Kirby({
   modelSrc: "/models/kirby/kirby.glb",
   scale: 0.005,
   // position: { x: 23, y: 0, z: 9 },
-  position: { x: 0, y: 0, z: 0 },
+  position: { x: 0, y: 3, z: 0 },
 });
 /* 박스 배열 */
 const coins = []; //물리 주기위해 배열에 담음
@@ -231,32 +247,6 @@ function coinEvent(state) {
     }
   }
 }
-
-// 텍스트 ________________________________________________________
-// const text = new Text({
-//   textCanvas,
-//   textContext,
-//   scene,
-//   text: "노래를 들으려면 클릭해 주세요!",
-//   position: { x: 23, y: 0.5, z: 3 },
-// });
-// const fontLoader = new FontLoader();
-// fontLoader.load("fonts/helvetiker_bold.typeface.json", function (font) {
-//   console.log(font);
-// });
-
-// const label = new TextGeometry("클릭하세요", {
-//   font: fontLoader,
-//   size: 10,
-//   height: 1,
-//   curveSegments: 1,
-//   color: 0xffffff,
-// });
-// const labelMaterial = new THREE.MeshBasicMaterial();
-// const labelMesh = new THREE.Mesh(label, labelMaterial);
-// labelMesh.position.copy(new THREE.Vector3(0, 0, 0));
-// scene.add(labelMesh);
-// ______________________________________________________________
 
 //
 const moneybox = new Loader({
@@ -329,6 +319,9 @@ let lookZ;
 function draw() {
   const delta = clock.getDelta();
   const time = clock.getElapsedTime();
+
+  /** ADD Label  */
+  player.modelMesh?.add(playerLabel);
 
   /** 중력설정 */
   cannonWorld.step(1 / 60, delta, 3);
@@ -584,8 +577,11 @@ function draw() {
     kirby.modelMesh.lookAt(10, 20, 0);
     kirby_run(run, kirby, delta);
   }
-  renderer.render(scene, camera);
+
+  /* Render */
   renderer.setAnimationLoop(draw);
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
 }
 
 /* 레이캐스팅때 실행 */
@@ -659,7 +655,10 @@ function setSize() {
 
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.render(scene, camera);
+  labelRenderer.setSize(window.innerWidth, window.innerHeight);
+
+  // renderer.render(scene, camera);
+  // labelRenderer.render(scene, camera);
 }
 
 // 이벤트_______________________________________________________
