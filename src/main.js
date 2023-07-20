@@ -207,10 +207,16 @@ const player = new Player({
 const playerDiv = document.createElement("div");
 playerDiv.className = "label";
 playerDiv.innerText = "Player";
-
 const playerLabel = new CSS2DObject(playerDiv);
 playerLabel.position.set(0, -2, 0);
 playerLabel.layers.set(0);
+
+const pianoDiv = document.createElement("div");
+pianoDiv.className = "label";
+pianoDiv.innerText = "클릭하면 사이트가 열려요";
+const pianoLabel = new CSS2DObject(pianoDiv);
+pianoLabel.position.set(0, 0, 0);
+pianoLabel.layers.set(0);
 
 //_________________________________________________
 const kirby = new Kirby({
@@ -220,7 +226,10 @@ const kirby = new Kirby({
   modelSrc: "/models/kirby/kirby.glb",
   scale: 0.005,
   // position: { x: 23, y: 0, z: 9 },
-  position: { x: 0, y: 3, z: 0 },
+  position: { x: 2, y: 0.5, z: 0 },
+  CSS2DObject,
+  container: new THREE.Object3D(),
+  name_label: "커비",
 });
 /* 박스 배열 */
 const coins = []; //물리 주기위해 배열에 담음
@@ -267,6 +276,10 @@ const car = new Loader({
   scale: 0.0075,
   position: { x: 0, y: 0, z: -4 },
   meshes: meshes,
+  CSS2DObject,
+  container: new THREE.Object3D(),
+  name_label: "자동차에 탑승해주세요",
+  // speech_label: "자동차에 탑승해주세요",
 });
 const piano = new Loader({
   scene,
@@ -277,7 +290,9 @@ const piano = new Loader({
   scale: 5,
   position: { x: 23, y: -1.5, z: 0 },
   meshes: meshes,
-  // text: text,
+  // CSS2DObject,
+  // container: new THREE.Object3D(),
+  // name_label: "클릭하면 사이트로 이동합니다",
 });
 
 let grasses = [];
@@ -389,6 +404,7 @@ function draw() {
             duration: 3,
             x: 20,
           });
+          console.log(car);
           gsap.to(car.modelMesh.position, {
             delay: 1,
             duration: 3,
@@ -425,11 +441,21 @@ function draw() {
         if (!piano.visible) {
           console.log("들어왔어요");
           piano.visible = true;
-
+          piano.modelMesh?.add(pianoLabel);
+          /**
+           *
+           *
+           *
+           *
+           *
+           *
+           *
+           *
+           */
           piano_spotMesh.material.color.set("seagreen");
           gsap.to(piano.modelMesh.position, {
             duration: 1,
-            y: 0.5,
+            y: 2,
           });
 
           grasses.forEach((e, index) => {
@@ -450,7 +476,7 @@ function draw() {
         piano_spotMesh.material.color.set("yellow");
         gsap.to(piano.modelMesh.position, {
           duration: 0.5,
-          y: -1.5,
+          y: -2,
         });
         grasses.forEach((e, index) => {
           gsap.to(e.modelMesh.position, {

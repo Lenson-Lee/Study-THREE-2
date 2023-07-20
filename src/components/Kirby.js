@@ -18,14 +18,30 @@ export class Kirby {
         }
       });
       this.modelMesh = glb.scene.children[0];
-      this.modelMesh.position.y = 0.3;
+
+      // this.modelMesh.layers.enableALL();
 
       this.modelMesh.name = "kirby";
       this.modelMesh.position.set(this.x, this.y, this.z);
       this.modelMesh.scale.set(info.scale, info.scale, info.scale);
+      this.modelMesh.layers.enableAll();
 
+      /** Label Name */
+      const div = document.createElement("div");
+      div.className = "label";
+      div.innerText = info.name_label;
+
+      const label = new info.CSS2DObject(div);
+      label.position.set(0, -2, 0);
+      label.layers.set(0);
+
+      this.modelMesh.add(label);
+
+      // info.scene.add(container);
       info.scene.add(this.modelMesh);
       info.meshes.push(this.modelMesh);
+
+      // this.modelMesh.add(info.container);
 
       this.actions = [];
 
