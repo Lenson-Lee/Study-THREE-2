@@ -46,7 +46,7 @@ export class Text {
       map: canvasTexture,
     });
     const text = new THREE.Mesh(geometry, material);
-    text.rotation.x = -Math.PI / 2;
+    // text.rotation.x = -Math.PI / 2;
     text.position.set(info.position.x, info.position.y, info.position.z);
 
     //캔버스텍스쳐에 그리기
