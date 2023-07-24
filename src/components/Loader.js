@@ -59,10 +59,33 @@ export class Loader {
       this.modelMesh.layers.enableAll();
 
       // Name Label _____________________________________________
-      if (info?.CSS2DObject) {
-        const container = info.container;
-        this.modelMesh.position.set(0, 0, 0); //컨테이너와 포지션이 중복되어서 0으로 변경
+      // if (info?.CSS2DObject) {
+      //   const container = info.container;
+      //   this.modelMesh.position.set(0, 0, 0); //컨테이너와 포지션이 중복되어서 0으로 변경
 
+      //   if (info?.name_label) {
+      //     console.log("이름라벨 : ", info.name);
+
+      //     const div = document.createElement("div");
+      //     div.className = "label";
+      //     div.innerText = info.name_label;
+
+      //     const label = new info.CSS2DObject(div);
+      //     label.position.set(0, -1, 0);
+      //     label.layers.set(0);
+      //     container.add(label);
+      //     // this.modelMesh.add(label);
+      //   }
+      //   // container.add(label); -> 이게 맞는데 태그가 안따라가서 임시로 메쉬에 적용
+      //   container.add(this.modelMesh);
+      //   container.position.set(this.x, this.y, this.z);
+      //   container.name = "container";
+      //   this.scene.add(container);
+      //   return;
+      // }
+      //_________________________________________________________
+
+      if (info?.CSS2DObject) {
         if (info?.name_label) {
           console.log("이름라벨 : ", info.name);
 
@@ -71,19 +94,15 @@ export class Loader {
           div.innerText = info.name_label;
 
           const label = new info.CSS2DObject(div);
-          label.position.set(0, -1, 0);
+          // label.position.set(0, 3, 0);
           label.layers.set(0);
-          container.add(label);
-          // this.modelMesh.add(label);
+
+          label.name = "label";
+          // label.center.set(0, 1);
+          this.modelMesh.add(label);
         }
-        // container.add(label); -> 이게 맞는데 태그가 안따라가서 임시로 메쉬에 적용
-        container.add(this.modelMesh);
-        container.position.set(this.x, this.y, this.z);
-
-        this.scene.add(container);
-        return;
       }
-
+      //_________________________________________________________
       this.scene.add(this.modelMesh);
     });
   }

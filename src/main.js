@@ -215,7 +215,8 @@ const pianoDiv = document.createElement("div");
 pianoDiv.className = "label";
 pianoDiv.innerText = "클릭하면 사이트가 열려요";
 const pianoLabel = new CSS2DObject(pianoDiv);
-pianoLabel.position.set(0, 0, 0);
+pianoLabel.position.set(0, -0.5, 0);
+// labelText.center.set(0, 0);
 pianoLabel.layers.set(0);
 
 //_________________________________________________
@@ -323,7 +324,7 @@ let isPressed = false; // 마우스를 누르고 있는 상태
 
 // 그리기 _________________________________________________
 const clock = new THREE.Clock();
-
+console.log(car);
 /** 커비의 방향, 진행중인 상태 표시 */
 let dirX = true; //true : 오른쪽, false : 왼쪽
 let dirZ = true; //true : 전진, false : 후진
@@ -334,10 +335,13 @@ let lookZ;
 function draw() {
   const delta = clock.getDelta();
   const time = clock.getElapsedTime();
-
+  // console.log(car?.modelMesh?.position);
+  // console.log(car);
   /** ADD Label  */
   player.modelMesh?.add(playerLabel);
+  piano.modelMesh?.add(pianoLabel);
 
+  console.log("피아노라벨 기본세팅 : ", pianoLabel.visible);
   /** 중력설정 */
   cannonWorld.step(1 / 60, delta, 3);
 
@@ -392,8 +396,6 @@ function draw() {
         Math.abs(car_spotMesh.position.z - player.modelMesh.position.z) < 0.5
       ) {
         if (!car.visible) {
-          console.log("자동차 탑승해요");
-
           car.visible = true;
           car_spotMesh.material.color.set("seagreen");
 
@@ -404,7 +406,6 @@ function draw() {
             duration: 3,
             x: 20,
           });
-          console.log(car);
           gsap.to(car.modelMesh.position, {
             delay: 1,
             duration: 3,
@@ -441,7 +442,8 @@ function draw() {
         if (!piano.visible) {
           console.log("들어왔어요");
           piano.visible = true;
-          piano.modelMesh?.add(pianoLabel);
+          pianoLabel.visible = true;
+          console.log("피아노라벨 ON : ", pianoLabel.visible);
           /**
            *
            *
@@ -472,6 +474,8 @@ function draw() {
       } else if (piano.visible) {
         console.log("나갔어요");
         piano.visible = false;
+
+        pianoLabel.visible = false;
 
         piano_spotMesh.material.color.set("yellow");
         gsap.to(piano.modelMesh.position, {
