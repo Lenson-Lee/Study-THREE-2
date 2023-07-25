@@ -4,7 +4,7 @@ import { MeshBasicMaterial, DoubleSide, Mesh } from "three";
 /* 이벤트 스팟 포인터 ____________________________________________*/
 export const Spot = (props) => {
   const spot = new THREE.Mesh(
-    new THREE.PlaneGeometry(props.size.x, props.size.y),
+    new THREE.CircleGeometry(props.size.x, props.size.y),
     new THREE.MeshStandardMaterial({
       color: "yellow",
       transparent: true,
