@@ -12,6 +12,8 @@ import { Coin } from "./components/Coin";
 import { Loader } from "./components/Loader";
 import { Spot, Pointer, Text } from "./components/SpotMesh";
 // import { Sound } from "Sound";
+import { CarEvent } from "./module/CarEvent";
+import { PianoEvent } from "./module/PianoEvent";
 
 import { kirby_random, kirby_run } from "./Kirby";
 import gsap from "gsap";
@@ -216,8 +218,14 @@ pianoDiv.className = "label";
 pianoDiv.innerText = "클릭하면 사이트가 열려요";
 const pianoLabel = new CSS2DObject(pianoDiv);
 pianoLabel.position.set(0, -0.5, 0);
-// labelText.center.set(0, 0);
 pianoLabel.layers.set(0);
+
+const moneyDiv = document.createElement("div");
+moneyDiv.className = "label";
+moneyDiv.innerText = `동전을 주워주세요.`;
+const moneyLabel = new CSS2DObject(moneyDiv);
+moneyLabel.position.set(0, -0.5, 0);
+moneyLabel.layers.set(0);
 
 //_________________________________________________
 const kirby = new Kirby({
@@ -324,7 +332,7 @@ let isPressed = false; // 마우스를 누르고 있는 상태
 
 // 그리기 _________________________________________________
 const clock = new THREE.Clock();
-console.log(car);
+
 /** 커비의 방향, 진행중인 상태 표시 */
 let dirX = true; //true : 오른쪽, false : 왼쪽
 let dirZ = true; //true : 전진, false : 후진
@@ -340,7 +348,11 @@ function draw() {
   /** ADD Label  */
   player.modelMesh?.add(playerLabel);
   piano.modelMesh?.add(pianoLabel);
-
+  moneybox.modelMesh?.add(moneyLabel);
+  moneyDiv.innerText = `동전을 주워주세요.\n
+  ${
+    catchList?.length ? catchList.length + "/" + totalCoin : "0 / " + totalCoin
+  }`;
   console.log("피아노라벨 기본세팅 : ", pianoLabel.visible);
   /** 중력설정 */
   cannonWorld.step(1 / 60, delta, 3);
@@ -390,109 +402,23 @@ function draw() {
         console.log("멈춤");
       }
 
-      /* Car Event */
-      if (
-        Math.abs(car_spotMesh.position.x - player.modelMesh.position.x) < 0.5 &&
-        Math.abs(car_spotMesh.position.z - player.modelMesh.position.z) < 0.5
-      ) {
-        if (!car.visible) {
-          car.visible = true;
-          car_spotMesh.material.color.set("seagreen");
+      CarEvent({
+        car,
+        car_spotMesh,
+        player,
+        gsap,
+        camera,
+      });
 
-          //플레이어 이동
-          player.modelMesh.visible = false;
-          gsap.to(player.modelMesh.position, {
-            delay: 1,
-            duration: 3,
-            x: 20,
-          });
-          gsap.to(car.modelMesh.position, {
-            delay: 1,
-            duration: 3,
-            x: 20,
-          });
-          gsap.to(camera.position, {
-            duration: 1,
-            x: 20,
-          });
-
-          //이동 후 플레이어 등장 + 자동차 퇴장
-          setTimeout(() => {
-            player.modelMesh.visible = true;
-            gsap.to(car.modelMesh.position, {
-              delay: 0.5,
-              duration: 3,
-              x: 40,
-            });
-          }, 4000);
-        }
-      } else if (car.visible) {
-        console.log("나갔어요");
-        car.visible = false;
-
-        car_spotMesh.material.color.set("yellow");
-      }
-
-      /* Piano Event */
-      if (
-        Math.abs(piano_spotMesh.position.x - player.modelMesh.position.x) <
-          0.5 &&
-        Math.abs(piano_spotMesh.position.z - player.modelMesh.position.z) < 0.5
-      ) {
-        if (!piano.visible) {
-          console.log("들어왔어요");
-          piano.visible = true;
-          pianoLabel.visible = true;
-          console.log("피아노라벨 ON : ", pianoLabel.visible);
-          /**
-           *
-           *
-           *
-           *
-           *
-           *
-           *
-           *
-           */
-          piano_spotMesh.material.color.set("seagreen");
-          gsap.to(piano.modelMesh.position, {
-            duration: 1,
-            y: 2,
-          });
-
-          grasses.forEach((e, index) => {
-            gsap.to(e.modelMesh.position, {
-              duration: 1,
-              y: 0,
-            });
-          });
-          gsap.to(camera.position, {
-            duration: 1,
-            y: 3,
-          });
-        }
-      } else if (piano.visible) {
-        console.log("나갔어요");
-        piano.visible = false;
-
-        pianoLabel.visible = false;
-
-        piano_spotMesh.material.color.set("yellow");
-        gsap.to(piano.modelMesh.position, {
-          duration: 0.5,
-          y: -2,
-        });
-        grasses.forEach((e, index) => {
-          gsap.to(e.modelMesh.position, {
-            duration: 1,
-            y: -3,
-          });
-        });
-        gsap.to(camera.position, {
-          duration: 1,
-          y: 5,
-        });
-      }
+      PianoEvent({
+        piano,
+        piano_spotMesh,
+        pianoLabel,
+        grasses,
+        player,
+        gsap,
+        camera,
+      });
 
       /* coin spot event */
       if (
@@ -648,12 +574,8 @@ function checkIntersects() {
       }
     }
 
+    /** 동전 줍기 이벤트 실행 */
     if (item.object.name.includes("moneybox_")) {
-      alert(
-        `동전을 모아주세요!\n 현재 모은 동전 : ${
-          catchList?.length ? catchList.length : 0
-        }/${totalCoin}`
-      );
       catching = true;
     }
     if (item.object.name.includes("kirby")) {
