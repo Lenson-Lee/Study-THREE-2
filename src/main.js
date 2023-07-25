@@ -52,9 +52,9 @@ const scene = new THREE.Scene();
 const gltfLoader = new GLTFLoader();
 
 //그리드
-const axesHelper = new THREE.AxesHelper(100);
-const grid = new THREE.GridHelper(100, 100);
-scene.add(grid, axesHelper);
+// const axesHelper = new THREE.AxesHelper(100);
+// const grid = new THREE.GridHelper(100, 100);
+// scene.add(grid, axesHelper);
 
 // Camera
 const camera = new THREE.OrthographicCamera(
@@ -100,7 +100,7 @@ const meshes = [];
 
 /* 바닥 격자무늬 */
 const floorMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(100, 100),
+  new THREE.PlaneGeometry(75, 75),
   new THREE.MeshStandardMaterial({
     map: floorTexture,
   })
@@ -113,7 +113,7 @@ meshes.push(floorMesh);
 
 /* 마우스 클릭 포인터 */
 const pointerMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(1, 1),
+  new THREE.CircleGeometry(0.3, 32),
   new THREE.MeshBasicMaterial({
     color: "crimson",
     transparent: true,
@@ -127,7 +127,7 @@ scene.add(pointerMesh);
 
 /* 이벤트 스팟 포인터 ____________________________________________*/
 const car_spotMesh = new Spot({
-  size: { x: 1, y: 1 },
+  size: { x: 0.6, y: 32 },
   position: { x: 0, y: 0.005, z: -2 },
 });
 const car_pointer = new Pointer({
@@ -137,8 +137,8 @@ const car_pointer = new Pointer({
   scene,
 });
 
-const piano_spotMesh = Spot({
-  size: { x: 1, y: 1 },
+const piano_spotMesh = new Spot({
+  size: { x: 0.6, y: 32 },
   position: { x: 20, y: 0.005, z: 0 },
 });
 const piano_pointer = new Pointer({
@@ -149,13 +149,13 @@ const piano_pointer = new Pointer({
   scene,
 });
 
-const coin_spotMesh = Spot({
-  size: { x: 1, y: 1 },
+const coin_spotMesh = new Spot({
+  size: { x: 0.6, y: 32 },
   position: { x: 20, y: 0.05, z: 5 },
 });
 
-const kirby_spotMesh = Spot({
-  size: { x: 1, y: 1 },
+const kirby_spotMesh = new Spot({
+  size: { x: 0.6, y: 32 },
   position: { x: 0, y: 0.05, z: 3 },
 });
 scene.add(car_spotMesh, piano_spotMesh, coin_spotMesh, kirby_spotMesh);
@@ -340,22 +340,44 @@ let run = false;
 let lookX;
 let lookZ;
 
+let moneyMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0xf88379,
+  clearcoatRoughness: 0.2,
+});
 function draw() {
   const delta = clock.getDelta();
   const time = clock.getElapsedTime();
-  // console.log(car?.modelMesh?.position);
-  // console.log(car);
+
   /** ADD Label  */
   player.modelMesh?.add(playerLabel);
   piano.modelMesh?.add(pianoLabel);
   moneybox.modelMesh?.add(moneyLabel);
-  moneyDiv.innerText = `동전을 주워주세요.\n
-  ${
-    catchList?.length ? catchList.length + "/" + totalCoin : "0 / " + totalCoin
-  }`;
-  console.log("피아노라벨 기본세팅 : ", pianoLabel.visible);
+  console.log(moneybox.modelMesh?.getObjectByName("Pig2"));
+
+  if (catchList?.length === totalCoin) {
+    let pigObj = moneybox.modelMesh?.getObjectByName("Pig2");
+
+    pigObj.children[0].material = moneyMaterial;
+    pigObj.children[1].material = moneyMaterial;
+
+    moneyDiv.innerText = `동전을 다 모았어요!
+    ${
+      catchList?.length
+        ? catchList.length + "/" + totalCoin
+        : "0 / " + totalCoin
+    }
+    `;
+  } else {
+    moneyDiv.innerText = `동전을 모아주세요.
+    ${
+      catchList?.length
+        ? catchList.length + "/" + totalCoin
+        : "0 / " + totalCoin
+    }`;
+  }
+
   /** 중력설정 */
-  cannonWorld.step(1 / 60, delta, 3);
+  cannonWorld.step(1 / 20, delta, 3); //원래는 1/60인데 코인이 너무 튀어서 줄임
 
   /** 동전 물리적 낙하 설정 */
   if (fallingCoins) {
@@ -430,6 +452,11 @@ function draw() {
           fallingCoins = true;
 
           coinEvent(true);
+
+          setTimeout(() => {
+            catching = true;
+          }, 3000);
+
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
@@ -575,9 +602,9 @@ function checkIntersects() {
     }
 
     /** 동전 줍기 이벤트 실행 */
-    if (item.object.name.includes("moneybox_")) {
-      catching = true;
-    }
+    // if (item.object.name.includes("moneybox_")) {
+    //   catching = true;
+    // }
     if (item.object.name.includes("kirby")) {
       if (confirm("커비와 달리기 경주를 시작합니다!")) {
         run = true;
