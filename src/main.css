@@ -41,3 +41,9 @@ body {
   font-size: 1.25rem; /* 20px */
   font-weight: 600;
 }
+
+.popup {
+  bottom: 3%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

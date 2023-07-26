@@ -14,7 +14,7 @@ import { Spot, Pointer, Text } from "./components/SpotMesh";
 // import { Sound } from "Sound";
 import { CarEvent } from "./module/CarEvent";
 import { PianoEvent } from "./module/PianoEvent";
-
+import { TodoList } from "./module/TodoList";
 import { kirby_random, kirby_run } from "./Kirby";
 import gsap from "gsap";
 
@@ -49,43 +49,13 @@ document.body.appendChild(labelRenderer.domElement);
 
 /** HTML Element ___________________________________________*/
 const bodyTag = document.querySelector("body");
-
-const popupDiv = document.createElement("div");
-popupDiv.classList.add("popup");
-let popVisible = false;
-
 const list = [
-  { check: false, title: "자동차 탑승하기" },
-  { check: false, title: "동전 모으기" },
-  { check: false, title: "커비 따라가기" },
+  { id: "car", check: false, title: "자동차 탑승하기" },
+  { id: "money", check: false, title: "동전 모으기" },
+  { id: "kirby", check: false, title: "커비 따라가기" },
 ];
 
-/** 할일목록 구역 */
-const todoDiv = document.createElement("div");
-const titleDiv = document.createElement("p");
-
-titleDiv.innerText = "🚩 Todo List";
-titleDiv.classList.add("title");
-bodyTag.appendChild(todoDiv);
-todoDiv.appendChild(titleDiv);
-
-list.forEach((item) => {
-  const containerDiv = document.createElement("div"); // 체크 + 할 일 담는 div
-  const checkDiv = document.createElement("p"); //체크아이콘
-  const listDiv = document.createElement("p"); //할 일 타이틀
-  checkDiv.innerHTML = item.check ? `✔` : ``;
-  listDiv.innerText = item.title;
-  containerDiv.classList.add("containerDiv");
-
-  containerDiv.appendChild(checkDiv);
-  containerDiv.appendChild(listDiv);
-  todoDiv.appendChild(containerDiv);
-});
-
-// todoDiv.innerText = "TO DO LIST";
-todoDiv.classList.add("todo");
-
-// Scene
+// Scene ___________________________________________________
 const scene = new THREE.Scene();
 const gltfLoader = new GLTFLoader();
 
@@ -194,7 +164,7 @@ const coin_spotMesh = new Spot({
 
 const kirby_spotMesh = new Spot({
   size: { x: 0.6, y: 32 },
-  position: { x: 0, y: 0.05, z: 3 },
+  position: { x: 15, y: 0.05, z: 5 },
 });
 scene.add(car_spotMesh, piano_spotMesh, coin_spotMesh, kirby_spotMesh);
 
@@ -272,8 +242,8 @@ const kirby = new Kirby({
   gltfLoader,
   modelSrc: "/models/kirby/kirby.glb",
   scale: 0.005,
-  // position: { x: 23, y: 0, z: 9 },
-  position: { x: 2, y: 0.5, z: 0 },
+  // position: { x: 23, y: 0, z: 9 },{ x: 15, y: 0.05, z: 5 }
+  position: { x: 15, y: 0, z: 3 },
   CSS2DObject,
   container: new THREE.Object3D(),
   name_label: "커비",
@@ -393,6 +363,7 @@ let moneyMaterial = new THREE.MeshPhysicalMaterial({
   color: 0xf88379,
   clearcoatRoughness: 0.2,
 });
+
 function draw() {
   const delta = clock.getDelta();
   const time = clock.getElapsedTime();
@@ -408,24 +379,21 @@ function draw() {
     pigObj.children[0].material = moneyMaterial;
     pigObj.children[1].material = moneyMaterial;
 
-    moneyDiv.innerText = `동전을 다 모았어요!
-    ${
-      catchList?.length
-        ? catchList.length + "/" + totalCoin
-        : "0 / " + totalCoin
-    }
-    `;
+    moneyDiv.innerText = "동전을 다 모았어요!";
+    list[1].check = true;
   } else {
-    moneyDiv.innerText = `동전을 모아주세요.
-    ${
-      catchList?.length
-        ? catchList.length + "/" + totalCoin
-        : "0 / " + totalCoin
-    }`;
+    moneyDiv.innerText = "동전을 모아주세요.";
   }
 
   /** 중력설정 */
   cannonWorld.step(1 / 20, delta, 3); //원래는 1/60인데 코인이 너무 튀어서 줄임
+
+  let coincount = {
+    catch: catchList?.length,
+    total: totalCoin,
+  };
+  /** HTML Render */
+  TodoList(bodyTag, list, coincount);
 
   /** 동전 물리적 낙하 설정 */
   if (fallingCoins) {
@@ -478,6 +446,7 @@ function draw() {
         player,
         gsap,
         camera,
+        list,
       });
 
       PianoEvent({

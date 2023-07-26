@@ -1,4 +1,4 @@
-export function CarEvent({ car, car_spotMesh, player, gsap, camera }) {
+export function CarEvent({ car, car_spotMesh, player, gsap, camera, list }) {
   if (
     Math.abs(car_spotMesh.position.x - player.modelMesh.position.x) < 0.5 &&
     Math.abs(car_spotMesh.position.z - player.modelMesh.position.z) < 0.5
@@ -24,7 +24,7 @@ export function CarEvent({ car, car_spotMesh, player, gsap, camera }) {
         x: 20,
       });
 
-      //이동 후 플레이어 등장 + 자동차 퇴장
+      /** 이동 후 플레이어 등장 + 자동차 퇴장 */
       setTimeout(() => {
         player.modelMesh.visible = true;
         gsap.to(car.modelMesh.position, {
@@ -33,6 +33,8 @@ export function CarEvent({ car, car_spotMesh, player, gsap, camera }) {
           x: 40,
         });
       }, 4000);
+
+      list[0].check = true;
     }
   } else if (car.visible) {
     console.log("나갔어요");
