@@ -15,6 +15,7 @@ import { Spot, Pointer, Text } from "./components/SpotMesh";
 import { CarEvent } from "./module/CarEvent";
 import { PianoEvent } from "./module/PianoEvent";
 import { TodoList } from "./module/TodoList";
+import { Popup } from "./module/Popup";
 import { kirby_random, kirby_run } from "./Kirby";
 import gsap from "gsap";
 
@@ -363,6 +364,7 @@ let moneyMaterial = new THREE.MeshPhysicalMaterial({
   color: 0xf88379,
   clearcoatRoughness: 0.2,
 });
+let kirby_visible = false;
 
 function draw() {
   const delta = clock.getDelta();
@@ -392,8 +394,11 @@ function draw() {
     catch: catchList?.length,
     total: totalCoin,
   };
-  /** HTML Render */
+
+  /** TodoList HTML Render */
   TodoList(bodyTag, list, coincount);
+  /** kirby popup Render */
+  Popup(bodyTag, kirby_visible);
 
   /** 동전 물리적 낙하 설정 */
   if (fallingCoins) {
@@ -517,9 +522,12 @@ function draw() {
         Math.abs(kirby_spotMesh.position.z - player.modelMesh.position.z) < 0.5
       ) {
         kirby_spotMesh.material.color.set("seagreen");
+        kirby_visible = true;
       } else {
+        kirby_visible = false;
         kirby_spotMesh.material.color.set("yellow");
       }
+
       //
     } else {
       // 서 있는 상태
@@ -572,7 +580,7 @@ function draw() {
     dirZ = false;
   }
   // kirby_random, kirby_run(kirby, delta, dirX, dirZ, speed);
-
+  console.log(Popup());
   if (run) {
     kirby.modelMesh.lookAt(10, 20, 0);
     kirby_run(run, kirby, delta);
@@ -623,12 +631,12 @@ function checkIntersects() {
     //   catching = true;
     // }
     if (item.object.name.includes("kirby")) {
-      if (confirm("커비와 달리기 경주를 시작합니다!")) {
-        run = true;
-      } else {
-        run = false;
-        return;
-      }
+      // if (confirm("커비와 달리기 경주를 시작합니다!")) {
+      //   run = true;
+      // } else {
+      //   run = false;
+      //   return;
+      // }
       catching = true;
     }
 

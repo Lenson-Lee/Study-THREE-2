@@ -43,7 +43,21 @@ body {
 }
 
 .popup {
-  bottom: 3%;
+  position: absolute;
+  bottom: 10%;
   left: 50%;
   transform: translate(-50%, -50%);
+
+  color: #fff;
+  background-color: rgba(52, 21, 153, 0.73);
+  padding: 20px;
+
+  font-size: 1.25rem; /* 20px */
+  font-weight: 600;
+
+  cursor: pointer;
+  border-radius: 0.75rem; /* 12px */
+}
+.popup:hover {
+  background-color: rgba(52, 21, 153, 0.9);
 }
