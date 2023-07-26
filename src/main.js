@@ -47,6 +47,44 @@ labelRenderer.domElement.style.top = "0px";
 labelRenderer.domElement.style.pointerEvents = "none";
 document.body.appendChild(labelRenderer.domElement);
 
+/** HTML Element ___________________________________________*/
+const bodyTag = document.querySelector("body");
+
+const popupDiv = document.createElement("div");
+popupDiv.classList.add("popup");
+let popVisible = false;
+
+const list = [
+  { check: false, title: "자동차 탑승하기" },
+  { check: false, title: "동전 모으기" },
+  { check: false, title: "커비 따라가기" },
+];
+
+/** 할일목록 구역 */
+const todoDiv = document.createElement("div");
+const titleDiv = document.createElement("p");
+
+titleDiv.innerText = "🚩 Todo List";
+titleDiv.classList.add("title");
+bodyTag.appendChild(todoDiv);
+todoDiv.appendChild(titleDiv);
+
+list.forEach((item) => {
+  const containerDiv = document.createElement("div"); // 체크 + 할 일 담는 div
+  const checkDiv = document.createElement("p"); //체크아이콘
+  const listDiv = document.createElement("p"); //할 일 타이틀
+  checkDiv.innerHTML = item.check ? `✔` : ``;
+  listDiv.innerText = item.title;
+  containerDiv.classList.add("containerDiv");
+
+  containerDiv.appendChild(checkDiv);
+  containerDiv.appendChild(listDiv);
+  todoDiv.appendChild(containerDiv);
+});
+
+// todoDiv.innerText = "TO DO LIST";
+todoDiv.classList.add("todo");
+
 // Scene
 const scene = new THREE.Scene();
 const gltfLoader = new GLTFLoader();
@@ -267,6 +305,17 @@ function coinEvent(state) {
 }
 
 //
+const cafe = new Loader({
+  scene,
+  gltfLoader,
+  root: "/models/Cafe/scene.gltf",
+  name: "cafe",
+  scale: 0.4,
+  rotation: { z: Math.PI / 1 },
+  position: { x: 0, y: 0, z: 6 },
+  meshes: meshes,
+});
+
 const moneybox = new Loader({
   scene,
   gltfLoader,
@@ -352,7 +401,6 @@ function draw() {
   player.modelMesh?.add(playerLabel);
   piano.modelMesh?.add(pianoLabel);
   moneybox.modelMesh?.add(moneyLabel);
-  console.log(moneybox.modelMesh?.getObjectByName("Pig2"));
 
   if (catchList?.length === totalCoin) {
     let pigObj = moneybox.modelMesh?.getObjectByName("Pig2");
