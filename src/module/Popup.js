@@ -14,8 +14,7 @@ export function Popup(bodyTag, visible, run) {
 
     /** Click Event 생성 */
     popupDiv.addEventListener("click", (e) => {
-      console.log("클릭");
-      run = true;
+      value = true;
     });
   }
 }

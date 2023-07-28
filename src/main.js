@@ -281,9 +281,9 @@ const cafe = new Loader({
   gltfLoader,
   root: "/models/Cafe/scene.gltf",
   name: "cafe",
-  scale: 0.4,
+  scale: 0.3,
   rotation: { z: Math.PI / 1 },
-  position: { x: 0, y: 0, z: 6 },
+  position: { x: 5, y: -5, z: 5 },
   meshes: meshes,
 });
 
@@ -395,10 +395,43 @@ function draw() {
     total: totalCoin,
   };
 
+  /** 커비 애니메이션 */
+  if (kirby.mixer) {
+    kirby.mixer.update(delta);
+    kirby.actions[0].play();
+  }
+
   /** TodoList HTML Render */
   TodoList(bodyTag, list, coincount);
   /** kirby popup Render */
-  Popup(bodyTag, kirby_visible);
+  /** 존재여부 확인 */
+  const validate = document.getElementById("popup");
+
+  if (kirby_visible && run === false) {
+    const popupDiv = document.createElement("div");
+    popupDiv.innerText = "커비 따라가기";
+    popupDiv.classList.add("popup");
+    popupDiv.id = "popup";
+
+    if (validate === null) {
+      bodyTag.appendChild(popupDiv);
+    }
+
+    /** Click Event 생성 */
+    popupDiv.addEventListener("click", (e) => {
+      list[2].check = true;
+      run = true;
+
+      gsap.to(cafe.modelMesh.position, {
+        duration: 0.5,
+        y: 0,
+      });
+
+      if (popupDiv) {
+        popupDiv.remove();
+      }
+    });
+  }
 
   /** 동전 물리적 낙하 설정 */
   if (fallingCoins) {
@@ -580,10 +613,11 @@ function draw() {
     dirZ = false;
   }
   // kirby_random, kirby_run(kirby, delta, dirX, dirZ, speed);
-  console.log(Popup());
+  // console.log(Popup());
   if (run) {
-    kirby.modelMesh.lookAt(10, 20, 0);
-    kirby_run(run, kirby, delta);
+    kirby.modelMesh.lookAt(0, 20, 0);
+    let finish = (10, 0, 6);
+    kirby_run(run, kirby, delta, finish);
   }
 
   /* Render */
@@ -611,10 +645,10 @@ function checkIntersects() {
       pointerMesh.position.x = destinationPoint.x;
       pointerMesh.position.z = destinationPoint.z;
 
-      if (!run) {
-        kirby.modelMesh.lookAt(destinationPoint.x, 20, destinationPoint.z);
-      } else {
-      }
+      // if (!run) {
+      //   kirby.modelMesh.lookAt(destinationPoint.x, 20, destinationPoint.z);
+      // } else {
+      // }
     }
 
     //piano 클릭시 유튜브 창 띄우기

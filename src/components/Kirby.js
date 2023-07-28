@@ -51,7 +51,6 @@ export class Kirby {
       this.actions[0] = this.mixer.clipAction(glb.animations[0]);
       this.actions[1] = this.mixer.clipAction(glb.animations[1]);
       this.actions[2] = this.mixer.clipAction(glb.animations[2]);
-      this.actions[1].play();
     });
   }
 }
